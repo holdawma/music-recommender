@@ -47,5 +47,14 @@ public class Album {
     public boolean getRating() {
         return this.liked;
     }
+    
+    public boolean toLike() {
+        if (this.liked == true) {
+            this.liked = false;
+        } else if (this.liked == false){
+            this.liked = true;
+        }
+        return this.liked;
+    }
 }
 
