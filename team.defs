@@ -1,0 +1,17 @@
+#Tue Aug 04 16:25:07 NZST 2020
+bluej.teamsettings.groupname=
+bluej.teamsettings.ignore1=.*\\.class
+bluej.teamsettings.yourName=holdawma
+bluej.teamsettings.git.server=github.com
+bluej.teamsettings.yourEmail=matthew.holdaway@student.onslow.school.nz
+bluej.teamsettings.git.repositoryPrefix=/holdawma/music-recommender
+bluej.teamsettings.vcs=git
+bluej.teamsettings.user=holdawma
+bluej.teamsettings.ignore3=team\\.defs
+bluej.teamsettings.ignore2=bluej\\.pkh
+bluej.teamsettings.ignore5=.*\\~
+bluej.teamsettings.ignore4=.*\\.ctxt
+bluej.teamsettings.ignore7=.*\\\#backup
+bluej.teamsettings.ignore6=.*\\\#
+bluej.teamsettings.git.protocol=https
+bluej.teamsettings.ignore8=\\.DS_Store

@@ -32,22 +32,39 @@ public class Album {
         this.liked = userLikeAlbum;
     }
     
+    /**
+     * Method to return name of album
+     */
     public String getName() {
         return this.name;
     }
     
+    /**
+     * Method to return genre of album
+     */
     public String getGenre() {
         return this.genre;
     }
     
+    /**
+     * Method to return artist of album
+     */
     public String getArtist() {
         return this.artist;
     }
     
+    /**
+     * Method to return rating of album
+     */
     public boolean getRating() {
         return this.liked;
     }
     
+    /**
+     * Method to swap the status of the rating of album
+     * If liked then unlike
+     * If unliked then like
+     */
     public boolean toLike() {
         if (this.liked == true) {
             this.liked = false;

@@ -1,0 +1,21 @@
+#BlueJ class context
+comment0.target=Album
+comment0.text=\ \r\n\ Class\ for\ each\ album,\ puts\ all\ values\ into\ variables,\ can\ return\ each\ value\r\n\ String\ name\r\n\ String\ genre\r\n\ String\ artist\r\n\ Boolean\ liked\r\n
+comment1.params=userName\ userGenre\ userArtist\ userLikeAlbum
+comment1.target=Album(java.lang.String,\ java.lang.String,\ java.lang.String,\ boolean)
+comment2.params=
+comment2.target=java.lang.String\ getName()
+comment2.text=\r\n\ Method\ to\ return\ name\ of\ album\r\n
+comment3.params=
+comment3.target=java.lang.String\ getGenre()
+comment3.text=\r\n\ Method\ to\ return\ genre\ of\ album\r\n
+comment4.params=
+comment4.target=java.lang.String\ getArtist()
+comment4.text=\r\n\ Method\ to\ return\ artist\ of\ album\r\n
+comment5.params=
+comment5.target=boolean\ getRating()
+comment5.text=\r\n\ Method\ to\ return\ rating\ of\ album\r\n
+comment6.params=
+comment6.target=boolean\ toLike()
+comment6.text=\r\n\ Method\ to\ swap\ the\ status\ of\ the\ rating\ of\ album\r\n\ If\ liked\ then\ unlike\r\n\ If\ unliked\ then\ like\r\n
+numComments=7
