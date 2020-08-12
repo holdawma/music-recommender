@@ -24,7 +24,6 @@ public class Albums {
     private String uas;
     private String ratedAlbum;
     private boolean AlbumSearched;
-    private String errormsg = "0";
 
     /**
      * Constructor for class Albums
@@ -32,8 +31,6 @@ public class Albums {
      */
     public Albums() {
         albumStore = new HashMap<String, Album>();
-        albumStore.put("AMRockArctic Monkeys", new Album("AM", "Rock", "Arctic Monkeys", true));
-        albumStore.put("Fine LinePopHarry Styles", new Album("Fine Line", "Pop", "Harry Styles", true));
         mainMenu();
     }
     
@@ -43,6 +40,7 @@ public class Albums {
      */
     public void mainMenu() {
         UI.initialise();
+        getNewAlbums();
         UI.addButton("Add new Album", this::addAlbumUI);
         UI.addTextField("Search: ", this::searchAlbumProcess);
         UI.addButton("Search", this::searchAlbumUI);
@@ -77,19 +75,47 @@ public class Albums {
     }
     
     /**
+     * Adds albums from text file to hashmap
+     */
+    
+    public void getNewAlbums() {
+        File newAlbumsRaw = new File("albums.txt");
+        try {
+            Scanner scan = new Scanner(newAlbumsRaw);
+            while(scan.hasNextLine()) { // loops each line
+                ArrayList<String> newAlbum = new ArrayList<String>();
+                String scanLine = scan.nextLine();
+                char[] albumLine = scanLine.toCharArray();
+                String entryField = "";
+                for(int i=0; i<albumLine.length;i++){ // loops each character
+                    char c = albumLine[i];
+                    if (c == 0x2c) {
+                        newAlbum.add(entryField);
+                        entryField = "";
+                    } else {
+                        entryField += c;
+                    }
+                }
+                albumStore.put(newAlbum.get(0)+newAlbum.get(1)+newAlbum.get(2), new Album(newAlbum.get(0), newAlbum.get(1), newAlbum.get(2), false));
+            }
+        } catch (Exception e) {
+            UI.println(e);
+        }
+    }
+    /**
      * Processing and output for liking an album
      */
-    public void likeAlbum(){
+    public void likeAlbum(){    
         UI.clearGraphics();
         if (AlbumSearched == true) {
             for(String i : albumStore.keySet()) {
                 if (albumStore.get(i).getName().equals(ratedAlbum)) {
-                    String gen = albumStore.get(i).getGenre();
-                    String art = albumStore.get(i).getArtist();
+                    String iGenre = albumStore.get(i).getGenre();
+                    String iArtist = albumStore.get(i).getArtist();
                     albumStore.get(i).toLike();
                     if (albumStore.get(i).getRating() == true){
                         UI.println("Rating: Liked");
-                        getRecommendation(gen);
+                        getRecommendation(iGenre);
                     } else {
                         UI.println("Rating: Disliked");
                     }
@@ -141,14 +167,10 @@ public class Albums {
     public void viewAll() {
         UI.clearText();
         for (String i : albumStore.keySet()) {
-            String nam = albumStore.get(i).getName();
-            String gen = albumStore.get(i).getGenre();
-            String art = albumStore.get(i).getArtist();
             boolean rat = albumStore.get(i).getRating();
-            
-            UI.println("Name: " + nam);
-            UI.println("Genre: " + gen);
-            UI.println("Artist: " + art);
+            UI.println("Name: " + albumStore.get(i).getName());
+            UI.println("Genre: " + albumStore.get(i).getGenre());
+            UI.println("Artist: " + albumStore.get(i).getArtist());
             if (rat == true){
                 UI.println("Rating: Liked");
             } else {
@@ -165,13 +187,10 @@ public class Albums {
         UI.clearText();
         for(String i : albumStore.keySet()) {
             if (albumStore.get(i).getName().equals(uas)) {
-                String nam = albumStore.get(i).getName();
-                String gen = albumStore.get(i).getGenre();
-                String art = albumStore.get(i).getArtist();
                 boolean rat = albumStore.get(i).getRating();
-                UI.println("Name: " + nam);
-                UI.println("Genre: " + gen);
-                UI.println("Artist: " + art);
+                UI.println("Name: " + albumStore.get(i).getName());
+                UI.println("Genre: " + albumStore.get(i).getGenre());
+                UI.println("Artist: " + albumStore.get(i).getArtist());
                 if (rat == true){
                     UI.println("Rating: Liked");
                 } else {
