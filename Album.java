@@ -23,9 +23,9 @@ public class Album {
     private String name;
     private String genre;
     private String artist;
-    private boolean liked;
+    private String liked;
     
-    public Album(String userName, String userGenre, String userArtist, boolean userLikeAlbum) {
+    public Album(String userName, String userGenre, String userArtist, String userLikeAlbum) {
         this.name = userName;
         this.genre = userGenre;
         this.artist = userArtist;
@@ -56,22 +56,23 @@ public class Album {
     /**
      * Method to return rating of album
      */
-    public boolean getRating() {
-        return this.liked;
+    public String getRating() {
+        if (this.liked.equals("0")) {
+            return "Unrated";
+        } else {
+            return this.liked;
+        }
     }
     
     /**
-     * Method to swap the status of the rating of album
-     * If liked then unlike
-     * If unliked then like
+     * Method to change the rating of the album
      */
-    public boolean toLike() {
-        if (this.liked == true) {
-            this.liked = false;
-        } else if (this.liked == false){
-            this.liked = true;
-        }
-        return this.liked;
+    public void toLike(String userRating) {
+        this.liked = userRating;
+    }
+    
+    public String returnAll() {
+        return "Name: " + this.name + "\nGenre: " + this.genre + "\nArtist: " + this.artist + "\nRating: " + this.liked;
     }
 }
 
