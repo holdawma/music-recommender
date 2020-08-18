@@ -20,4 +20,5 @@ comment6.target=void\ toLike(java.lang.String)
 comment6.text=\r\n\ Method\ to\ change\ the\ rating\ of\ the\ album\r\n
 comment7.params=
 comment7.target=java.lang.String\ returnAll()
+comment7.text=\r\n\ Method\ to\ return\ all\ the\ information\ of\ an\ album\ formatted\ in\ one\ string\r\n
 numComments=8

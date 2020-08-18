@@ -71,6 +71,9 @@ public class Album {
         this.liked = userRating;
     }
     
+    /**
+     * Method to return all the information of an album formatted in one string
+     */
     public String returnAll() {
         return "Name: " + this.name + "\nGenre: " + this.genre + "\nArtist: " + this.artist + "\nRating: " + this.liked;
     }

@@ -1,30 +1,28 @@
-/* Based on the ecs 100 template
-* Code for ??
-* Name:
-* Date:
-*/
-
 import ecs100.*;
 import java.util.*;
 import java.io.*;
 import java.awt.Color;
+import java.lang.Math;
 
-/** The class for all albums
-* String name
-* String genre
-* String artist
-* boolean liked
-*/
+/** 
+ * The class for all albums
+ */
 public class Albums {
     private String name;
     private String genre;
     private String artist;
     private String liked = "0";
     private HashMap<String, Album> albumStore;
+    ArrayList<String> searchAlbumResults = new ArrayList<String>();
     private String uas;
     private String ratedAlbum;
     private boolean AlbumSearched;
     private String newRating;
+    private double userX;
+    private double userY;
+    private String selected;
+    private boolean choosing = false;
+    private boolean isRating = false;
     
     /**
      * Constructor for class Albums
@@ -33,30 +31,37 @@ public class Albums {
     public Albums() {
         albumStore = new HashMap<String, Album>();
         getNewAlbums();
+        UI.initialise();
+        UI.setWindowSize(1600, 900);
         mainMenu();
     }
     
     /**
      * Shows main menu options
-     * 
      */
     public void mainMenu() {
         UI.initialise();
+        isRating = false;
+        choosing = false;
+        UI.setDivider(0.1);
         UI.addButton("Add new Album", this::addAlbumUI);
         UI.addButton("Search", this::searchForUI);
-        UI.addButton("Rate Album", this::rateAlbumUI);
         UI.addButton("View All", this::viewAll);
         UI.addButton("Quit", UI::quit);
     }
     
+    /**
+     * UI for searching for an album
+     */
+    
     public void searchForUI() {
         UI.initialise();
-        UI.addTextField("Search: ", this::searchAlbumProcess);
-        UI.addButton("Search Name", this::searchAlbumName);
-        UI.addButton("Search Genre", this::searchAlbumGenre);
-        UI.addButton("Search Artist", this::searchAlbumArtist);
+        UI.setMouseListener(this::doMouse); // Idk why I have to have this here but I do because otherwise the program breaks ¯\_(ツ)_/¯
+        uas = "";
+        UI.addTextField("Search (Album name, genre, or artist): ", this::searchAlbumProcess);
+        UI.addButton("Search", this::searchAlbum);
         UI.addButton("Back", this::mainMenu);
-    }
+    }    
     
     /**
      * Shows buttons and text fields for adding an album
@@ -74,21 +79,8 @@ public class Albums {
     }
     
     /**
-     * Shows buttons and text fields for rating an album
-     */
-    public void rateAlbumUI() {
-        UI.initialise();
-        newRating = "-1";
-        UI.addTextField("Album Name: ", this::rateAlbum);
-        UI.addTextField("New rating: (1-5)", this::newAlbumRating);
-        UI.addButton("Set", this::likeAlbum);
-        UI.addButton("Back", this::mainMenu);
-    }
-    
-    /**
      * Adds albums from text file to hashmap
-     */
-        
+     */ 
     public void getNewAlbums() {
         File newAlbumsRaw = new File("albums.txt");
         try {
@@ -114,33 +106,6 @@ public class Albums {
         }
     }
     
-    /**
-     * Processing and output for liking an album
-     */
-    public void likeAlbum(){
-        UI.clearGraphics();
-        if (AlbumSearched == true) {
-            try {
-                if (!(newRating.equals("1") || newRating.equals("2") || newRating.equals("3") || newRating.equals("4") || newRating.equals("5"))) {
-                    throw new ArithmeticException("Please enter a rating between 1 and 5");
-                }
-                for(String i : albumStore.keySet()) {
-                    if (albumStore.get(i).getName().equals(ratedAlbum)) {
-                        String iGenre = albumStore.get(i).getGenre();
-                        String iArtist = albumStore.get(i).getArtist();
-                        albumStore.get(i).toLike(newRating);
-                        UI.println("Rating: " + albumStore.get(i).getRating());
-                        if (newRating.equals("4") || newRating.equals("5")){
-                            getRecommendation(iGenre);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                UI.println("Something went wrong");
-            }
-        }
-    }
-    
     private void searchAlbumProcess(String userAlbumSearch){
         uas = userAlbumSearch.strip();
     }
@@ -157,15 +122,6 @@ public class Albums {
         artist = userArtist.strip();
     }
     
-    private void rateAlbum(String toRate){
-        ratedAlbum = toRate.strip();
-        AlbumSearched = true;
-    }
-    
-    public void newAlbumRating(String userNewRating) {
-        newRating = userNewRating.strip();
-    }
-
     /**
      * Processing for adding an album to hashmap
      */
@@ -194,46 +150,63 @@ public class Albums {
     }
     
     /**
-     * Processing and output for searching for a specific album by name
+     * Processing and output for searching for albums by all fields
      */
-    public void searchAlbumName() {
-        UI.clearText();
+    public void searchAlbum() {
+        searchAlbumResults.clear();
+        userX = 0.0;
+        userY = 0.0;
+        //UI.clearText();
         UI.clearGraphics();
-        int counter = 0;
         for(String i : albumStore.keySet()) {
-            if (albumStore.get(i).getName().equals(uas)) {
-                showAlbumInfo(i, counter);
-                counter+=115;
+            if (albumStore.get(i).getName().equals(uas) || albumStore.get(i).getArtist().equals(uas) || albumStore.get(i).getGenre().equals(uas)) {
+                searchAlbumResults.add(i);
             }
+        }
+        showSearchAlbumResults(searchAlbumResults);
+    }
+    
+    /**
+     * Shows the search results for the user, and lets them choose an album to display full results for
+     */
+    
+    public void showSearchAlbumResults(ArrayList<String> results){
+        int counter = 0;
+        isRating = false;
+        UI.setFontSize(18.0);
+        UI.setLineWidth(2.0);
+        UI.drawString("Please click one of the following:", 10, 20);
+        UI.drawLine(5, 25+counter, 450, 25+counter);
+        UI.setFontSize(13.0);
+        UI.setLineWidth(1.0);
+        UI.setMouseListener(this::doMouse);
+        
+        for(int i = 0 ; i < results.size() ; i++) {
+            UI.drawString(albumStore.get(results.get(i)).getName(), 10, 45+counter);
+            UI.drawString(albumStore.get(results.get(i)).getArtist(), 300, 45+counter);
+            UI.drawLine(5, 50+counter, 450, 50+counter);
+            counter += 25;
+        }
+        choosing = true;
+        if (userX >= 10 && userX <= 400 && userY >= 30 && (userY-25)/25  <= counter/25) {
+            selected = results.get((int) Math.round(Math.floor((userY-25)/25)));
+            userX = 0.0;
+            userY = 0.0;
+            showAlbumInfo(selected);
         }
     }
     
     /**
-     * Processing and output for searching for a specific album by genre
+     * Sets mouse x and y when clicked
      */
-    public void searchAlbumGenre() {
-        UI.clearText();
-        UI.clearGraphics();
-        int counter = 0;
-        for(String i : albumStore.keySet()) {
-            if (albumStore.get(i).getGenre().equals(uas)) {
-                showAlbumInfo(i, counter);
-                counter+=115;
-            }
-        }
-    }
-    
-    /**
-     * Processing and output for searching for a specific album by Artist
-     */
-    public void searchAlbumArtist() {
-        UI.clearText();
-        UI.clearGraphics();
-        int counter = 0;
-        for(String i : albumStore.keySet()) {
-            if (albumStore.get(i).getArtist().equals(uas)) {
-                showAlbumInfo(i, counter);
-                counter+=115;
+    public void doMouse(String action, double x, double y) {
+        if (action.equals("pressed")) {
+            userX = x;
+            userY = y;
+            if (choosing) {
+                showSearchAlbumResults(searchAlbumResults);
+            } else if (isRating) {
+                showAlbumInfo(selected);
             }
         }
     }
@@ -241,27 +214,43 @@ public class Albums {
     /**
      * Processing and output for displaying albums on the graphics pane
      */
-    private void showAlbumInfo(String album, int counter) {
-        UI.drawString("Name: " + albumStore.get(album).getName(), 50, 20+counter);
-        UI.drawString("Genre: " + albumStore.get(album).getGenre(), 50, 35+counter);
-        UI.drawString("Artist: " + albumStore.get(album).getArtist(), 50, 50+counter);
-        UI.drawString("Rating: " + albumStore.get(album).getRating(), 50, 65+counter);
+    private void showAlbumInfo(String album) {
+        choosing = false;
+        UI.clearGraphics();
+        UI.drawString("Name: " + albumStore.get(album).getName(), 50, 20);
+        UI.drawString("Genre: " + albumStore.get(album).getGenre(), 50, 35);
+        UI.drawString("Artist: " + albumStore.get(album).getArtist(), 50, 50);
+        UI.drawString("Rating: " + albumStore.get(album).getRating(), 50, 65);
         int iRating; // Learned from stackoverflow.com/questions/5585779/
         try {
            iRating = Integer.parseInt(albumStore.get(album).getRating());
         }
-        catch (NumberFormatException e)
-        {
-           iRating = 0;
+        catch (NumberFormatException e) {
+            iRating = 0;
         }
         //
         for(int j=0; j < 5; j++) {
             if (j < iRating) {
-                UI.fillOval(j*25+50, 75+counter, 20, 20);
+                UI.fillOval(j*25+50, 75, 20, 20);
             } else {
-                UI.drawOval(j*25+50, 75+counter, 20, 20);
+                UI.drawOval(j*25+50, 75, 20, 20);
             }
         }
+        isRating = true;
+        if (userY >= 75 && userY <= 95 && (userX - 50)/25 >= 0 && (userX - 45)/25 <= 5) {
+            changeAlbumRating((int) Math.round(Math.ceil((userX - 50)/25)), album);
+            userY = 0.0;
+            userX = 0.0;
+            showAlbumInfo(album);
+        }
+    }
+    
+    /**
+     * Changes the rating of an album
+     */
+    public void changeAlbumRating(int newRating, String album) {
+        String realNewRating = String.valueOf(newRating);
+        albumStore.get(album).toLike(realNewRating);
     }
     
     /**
