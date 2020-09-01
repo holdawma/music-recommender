@@ -43,7 +43,7 @@ public class Albums {
         UI.initialise();
         isRating = false;
         choosing = false;
-        UI.setDivider(0.1);
+        UI.setDivider(0.0);
         UI.addButton("Add new Album", this::addAlbumUI);
         UI.addButton("Search", this::searchForUI);
         UI.addButton("View All", this::viewAll);
@@ -56,7 +56,8 @@ public class Albums {
     
     public void searchForUI() {
         UI.initialise();
-        UI.setMouseListener(this::doMouse); // Idk why I have to have this here but I do because otherwise the program breaks ¯\_(ツ)_/¯
+        UI.setDivider(0.0);
+        UI.setMouseListener(this::doMouse); // Idk why I have to have this here but I do because otherwise the function breaks ¯\_(ツ)_/¯
         uas = "";
         UI.addTextField("Search (Album name, genre, or artist): ", this::searchAlbumProcess);
         UI.addButton("Search", this::searchAlbum);
@@ -159,11 +160,19 @@ public class Albums {
         //UI.clearText();
         UI.clearGraphics();
         for(String i : albumStore.keySet()) {
-            if (albumStore.get(i).getName().equals(uas) || albumStore.get(i).getArtist().equals(uas) || albumStore.get(i).getGenre().equals(uas)) {
+            if (albumStore.get(i).getName().equals(uas)
+            || albumStore.get(i).getArtist().equals(uas)
+            || albumStore.get(i).getGenre().equals(uas)) {
                 searchAlbumResults.add(i);
             }
         }
-        showSearchAlbumResults(searchAlbumResults);
+        if (searchAlbumResults.size() > 0) {
+            showSearchAlbumResults(searchAlbumResults);
+        } else if (uas.equals("")) {
+            UI.drawString("Please enter a value", 10, 20);
+        } else {
+            UI.drawString("No results were found for \"" + uas + "\"", 10, 20);
+        }
     }
     
     /**
@@ -173,11 +182,11 @@ public class Albums {
     public void showSearchAlbumResults(ArrayList<String> results){
         int counter = 0;
         isRating = false;
-        UI.setFontSize(18.0);
+        UI.setFontSize(18);
         UI.setLineWidth(2.0);
         UI.drawString("Please click one of the following:", 10, 20);
         UI.drawLine(5, 25+counter, 450, 25+counter);
-        UI.setFontSize(13.0);
+        UI.setFontSize(13);
         UI.setLineWidth(1.0);
         UI.setMouseListener(this::doMouse);
         
@@ -189,7 +198,7 @@ public class Albums {
         }
         choosing = true;
         if (userX >= 10 && userX <= 400 && userY >= 30 && (userY-25)/25  <= counter/25) {
-            selected = results.get((int) Math.round(Math.floor((userY-25)/25)));
+            selected = results.get((int) Math.round(Math.floor((userY-25)/25))); // Converts userY to an int
             userX = 0.0;
             userY = 0.0;
             showAlbumInfo(selected);
@@ -242,6 +251,11 @@ public class Albums {
             userY = 0.0;
             userX = 0.0;
             showAlbumInfo(album);
+            if (albumStore.get(album).getRating().equals("4")
+                || albumStore.get(album).getRating().equals("5")) {
+                ratedAlbum = albumStore.get(album).getName();
+                getRecommendation(albumStore.get(album).getGenre());
+            }
         }
     }
     
@@ -257,7 +271,7 @@ public class Albums {
      * Output for getting a recommendation for other albums
      */
     public void getRecommendationUI(String item, int row) {
-        UI.drawString(item, 100, row*15+100);
+        UI.drawString(item, 350, row*15+25);
     }
 
     /**
@@ -265,15 +279,32 @@ public class Albums {
      */
     public void getRecommendation(String likedGenre) {
         ArrayList<String> recommendedAlbums = new ArrayList<String>();
+        
         for (String albumKey : albumStore.keySet()) {
-            if (albumStore.get(albumKey).getGenre().equals(likedGenre) && !(albumStore.get(albumKey).getName().equals(ratedAlbum)) && (albumStore.get(albumKey).getRating().equals("4") || albumStore.get(albumKey).getRating().equals("5"))) {
+            if (albumStore.get(albumKey).getGenre().equals(likedGenre)
+                && !(albumStore.get(albumKey).getName().equals(ratedAlbum))
+                && (albumStore.get(albumKey).getRating().equals("4")
+                || albumStore.get(albumKey).getRating().equals("5"))) {
                 recommendedAlbums.add(albumStore.get(albumKey).getName());
             }
         }
         if (recommendedAlbums.size() > 0) {
-            UI.drawString("You might also like: ", 100, 100);
+            UI.drawString("You might also like: ", 350, 25);
             for (int i = 0; i < recommendedAlbums.size(); i++) {
                 getRecommendationUI(recommendedAlbums.get(i), i+1);
+            }
+        } else {
+            for (String albumKey : albumStore.keySet()) {
+                if (albumStore.get(albumKey).getGenre().equals(likedGenre)
+                    && !(albumStore.get(albumKey).getName().equals(ratedAlbum))) {
+                    recommendedAlbums.add(albumStore.get(albumKey).getName());
+                }
+            }
+            if (recommendedAlbums.size() > 0) {
+                UI.drawString("You might also like: ", 350, 25);
+                for (int i = 0; i < recommendedAlbums.size(); i++) {
+                    getRecommendationUI(recommendedAlbums.get(i), i+1);
+                }
             }
         }
     }
