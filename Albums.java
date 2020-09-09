@@ -47,13 +47,12 @@ public class Albums {
         UI.addButton("Add new Album", this::addAlbumUI);
         UI.addButton("Search", this::searchForUI);
         UI.addButton("View All", this::viewAll);
-        UI.addButton("Quit", UI::quit);
+        UI.addButton("Save & Quit", this::saveAlbums);
     }
     
     /**
      * UI for searching for an album
      */
-    
     public void searchForUI() {
         UI.initialise();
         UI.setDivider(0.0);
@@ -80,6 +79,22 @@ public class Albums {
     }
     
     /**
+     * Saves the hashmap to a txt file and quits
+     */
+    public void saveAlbums() {
+        File albumSave = new File("albums.txt");
+        try {
+            PrintStream writeToSave = new PrintStream(albumSave);
+            for(String i : albumStore.keySet()) {
+                writeToSave.println(albumStore.get(i).getName() + "," + albumStore.get(i).getGenre() + "," + albumStore.get(i).getArtist() + "," + albumStore.get(i).getRating() + ",");
+            }
+            UI.quit();
+        } catch (Exception e) {
+            UI.println("Something went wrong");
+        }
+    }
+    
+    /**
      * Adds albums from text file to hashmap
      */ 
     public void getNewAlbums() {
@@ -103,12 +118,12 @@ public class Albums {
                 albumStore.put(newAlbum.get(0)+newAlbum.get(1)+newAlbum.get(2), new Album(newAlbum.get(0), newAlbum.get(1), newAlbum.get(2), newAlbum.get(3)));
             }
         } catch (Exception e) {
-            UI.println(e);
+            UI.println("Something went wrong");
         }
     }
     
     private void searchAlbumProcess(String userAlbumSearch){
-        uas = userAlbumSearch.strip();
+        uas = userAlbumSearch.strip(); // uas stands for 'user album search'
     }
     
     private void addName(String userName){
@@ -134,7 +149,7 @@ public class Albums {
             Album newAlbum = new Album(name, genre, artist, liked);
             albumStore.put(name+genre+artist, new Album(name, genre, artist, "0"));
             mainMenu();
-        } catch (Exception InvalidAddition) {
+        } catch (Exception e) {
             UI.println("Something went wrong");
         }
     }
@@ -144,6 +159,7 @@ public class Albums {
      */
     public void viewAll() {
         UI.clearText();
+        UI.setDivider(0.2);
         for (String i : albumStore.keySet()) {
             UI.println(albumStore.get(i).returnAll());
             UI.println(" ");
@@ -279,7 +295,6 @@ public class Albums {
      */
     public void getRecommendation(String likedGenre) {
         ArrayList<String> recommendedAlbums = new ArrayList<String>();
-        
         for (String albumKey : albumStore.keySet()) {
             if (albumStore.get(albumKey).getGenre().equals(likedGenre)
                 && !(albumStore.get(albumKey).getName().equals(ratedAlbum))
